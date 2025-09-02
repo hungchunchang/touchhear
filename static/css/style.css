@@ -1,0 +1,499 @@
+/* style.css - 主樣式表 */
+
+/* 基本樣式重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f7;
+    color: #1d1d1f;
+    line-height: 1.6;
+}
+
+/* 主容器 */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin-top: 20px;
+}
+
+/* 標題 */
+h1 {
+    color: #1d1d1f;
+    margin-bottom: 30px;
+    font-size: 32px;
+    font-weight: 600;
+    text-align: center;
+}
+
+h3 {
+    color: #1d1d1f;
+    margin-bottom: 15px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* 圖片樣式 */
+img {
+    border: 1px solid #d2d2d7;
+    border-radius: 12px;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 30px auto;
+}
+
+/* 資訊區塊 */
+.status,
+.instructions,
+.marker-info {
+    margin: 30px 0;
+    padding: 20px;
+    border-radius: 12px;
+    background: #f5f5f7;
+}
+
+.instructions {
+    background: #fff8e1;
+    border-left: 4px solid #ff9500;
+}
+
+.marker-info {
+    background: #e3f2fd;
+    border-left: 4px solid #007aff;
+}
+
+.status {
+    background: #f0f9ff;
+    border-left: 4px solid #30d158;
+}
+
+/* 列表樣式 */
+ol,
+ul {
+    padding-left: 24px;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+/* 專案頁面樣式 */
+.projects-container {
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.projects-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.project-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.project-preview {
+    height: 200px;
+    overflow: hidden;
+    background: #f5f5f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.project-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+}
+
+.no-preview {
+    color: #86868b;
+    font-size: 48px;
+}
+
+.project-info {
+    padding: 20px;
+}
+
+.project-info h4 {
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.project-info p {
+    color: #86868b;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.project-actions {
+    padding: 0 20px 20px;
+    display: flex;
+    gap: 8px;
+}
+
+.project-actions .btn {
+    flex: 1;
+    font-size: 12px;
+    padding: 6px 12px;
+}
+
+/* 空狀態 */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+/* 按鈕樣式 */
+.btn {
+    background: #007aff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background: #007aff;
+}
+
+.btn-success {
+    background: #30d158;
+}
+
+
+.btn-info {
+    background: #5ac8fa;
+}
+
+.btn-danger {
+    background: #ff3b30;
+}
+
+.btn-warning {
+    background: #ff9500;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px 15px;
+        margin: 10px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .projects-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+}
+
+/* 編輯器特定樣式 */
+.editor-container {
+    display: flex;
+    height: calc(100vh - 44px);
+    background: #f5f5f7;
+}
+
+.editor-sidebar {
+    width: 320px;
+    background: white;
+    border-right: 1px solid #d2d2d7;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.editor-main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.sidebar-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.sidebar-section:last-child {
+    border-bottom: none;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d2d2d7;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #007aff;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.tool-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tool-group input[type="radio"] {
+    margin-right: 10px;
+}
+
+.tool-group label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+    border: 1px solid transparent;
+}
+
+.tool-group label:hover {
+    background: #f5f5f7;
+}
+
+.tool-group input[type="radio"]:checked+label {
+    background: #e3f2fd;
+    border-color: #007aff;
+}
+
+.canvas-container {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+#editorCanvas {
+    display: block;
+    cursor: crosshair;
+}
+
+.roi-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.roi-item {
+    background: #f5f5f7;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.roi-item:hover {
+    background: #e5e5ea;
+    transform: translateX(2px);
+}
+
+.roi-item.selected {
+    background: #007aff;
+    color: white;
+    border-color: #0056b3;
+}
+
+.roi-item h5 {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.roi-item p {
+    margin: 0;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* Modal 樣式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    border-radius: 12px;
+    width: 400px;
+    max-width: 90%;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #d2d2d7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f5f5f7;
+}
+
+.modal-header h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.modal-close {
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #86868b;
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: #1d1d1f;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 20px;
+    border-top: 1px solid #d2d2d7;
+    text-align: right;
+    background: #f5f5f7;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #1d1d1f;
+}
+
+.file-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px dashed #d2d2d7;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    background: #f5f5f7;
+}
+
+.file-input:hover {
+    border-color: #007aff;
+}
+
+.image-preview,
+.audio-preview {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid #d2d2d7;
+    border-radius: 8px;
+    background: white;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 6px;
+    display: block;
+    margin: 0 auto;
+}
+
+/* 載入動畫 */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007aff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

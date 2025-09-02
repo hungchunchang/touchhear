@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}專案管理{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-folder-open"></i> 專案管理</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newProjectModal">
+        <i class="fas fa-plus"></i> 新增專案
+    </button>
+</div>
+
+<div class="row">
+    {% for project in projects %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            {% if project.background_image %}
+            <img src="{{ url_for('uploaded_file', filename=project.background_image) }}" class="card-img-top"
+                style="height: 200px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ project.name }}</h5>
+                <p class="card-text text-muted">
+                    <small>建立時間: {{ project.created_at[:10] }}</small><br>
+                    <small>ROI 數量: {{ project.rois|length }}</small>
+                </p>
+                <div class="btn-group w-100" role="group">
+                    <a href="{{ url_for('editor_page', project_name=project.folder_name) }}"
+                        class="btn btn-outline-primary">
+                        <i class="fas fa-edit"></i> 編輯
+                    </a>
+                    <a href="{{ url_for('play_page', project_name=project.folder_name) }}"
+                        class="btn btn-outline-success">
+                        <i class="fas fa-play"></i> 播放
+                    </a>
+                </div>
+                <button class="btn btn-outline-danger btn-sm mt-2 w-100"
+                    onclick="deleteProject('{{ project.folder_name }}')">
+                    <i class="fas fa-trash"></i> 刪除
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not projects %}
+<div class="text-center py-5">
+    <i class="fas fa-folder-open fa-5x text-muted mb-3"></i>
+    <h4 class="text-muted">尚無專案</h4>
+    <p class="text-muted">開始建立你的第一個互動專案吧！</p>
+</div>
+{% endif %}
+{% endblock %}

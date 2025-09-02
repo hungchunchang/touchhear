@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}A4 棋盤手勢檢測{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>TouchHear</h1>
+    <img src="/video_feed" width="640" height="480" alt="視頻流">
+
+    <div class="instructions">
+        <h3>使用說明：</h3>
+        <ol>
+            <li>列印 A4 模板（包含四個角落的 ArUco 標記）</li>
+            <li>將 A4 紙平放在攝影機前</li>
+            <li>用食指指向 A4 紙上的位置</li>
+            <li>系統會顯示手指在 A4 紙上的精確座標（單位：mm）</li>
+            <li>只有手指接觸紙面時才會記錄座標（陰影檢測）</li>
+        </ol>
+    </div>
+
+    <div class="marker-info">
+        <strong>ArUco 標記說明：</strong><br>
+        • ID0 (左上角) • ID1 (右上角) • ID2 (右下角) • ID3 (左下角)<br>
+        至少需要檢測到 3 個標記才能進行座標計算
+    </div>
+
+    <div class="status">
+        <h3>檢測狀態</h3>
+        <p>即時影像中會顯示：</p>
+        <ul>
+            <li>ArUco 標記檢測狀態（✓/✗）</li>
+            <li>手部檢測狀態</li>
+            <li>接觸檢測（紅圈=接觸，藍圈=懸空）</li>
+            <li>手指在 A4 紙上的精確位置 (mm)</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

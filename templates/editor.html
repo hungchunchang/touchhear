@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}編輯器 - A4 Interactive Board{% endblock %}
+
+{% block content %}
+<div class="editor-container">
+    <div class="editor-sidebar">
+        <div class="sidebar-section">
+            <h3>專案</h3>
+            <select id="projectSelect" class="form-control">
+                <option value="">選擇專案...</option>
+            </select>
+            <button id="createProjectBtn" class="btn btn-primary">新建專案</button>
+        </div>
+
+        <div class="sidebar-section">
+            <h3>背景圖片</h3>
+            <input type="file" id="imageUpload" accept="image/*" class="file-input">
+            <div id="imagePreview" class="image-preview"></div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3>工具</h3>
+            <div class="tool-group">
+                <input type="radio" id="selectTool" name="tool" value="select" checked>
+                <label for="selectTool">選擇</label>
+
+                <input type="radio" id="rectangleTool" name="tool" value="rectangle">
+                <label for="rectangleTool">矩形</label>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3>ROI 列表</h3>
+            <div id="roiList" class="roi-list">
+                <!-- ROI 項目會動態添加 -->
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3>操作</h3>
+            <button id="saveBtn" class="btn btn-success">儲存</button>
+            <button id="exportBtn" class="btn btn-info">匯出</button>
+        </div>
+    </div>
+
+    <div class="editor-main">
+        <div class="canvas-container">
+            <canvas id="editorCanvas" width="800" height="600"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- ROI 屬性編輯 Modal -->
+<div id="roiModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>編輯 ROI</h4>
+            <span class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>名稱：</label>
+                <input type="text" id="roiName" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>音效檔：</label>
+                <input type="file" id="audioUpload" accept="audio/*" class="file-input">
+                <div id="audioPreview"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="saveRoiBtn" class="btn btn-primary">確定</button>
+            <button id="deleteRoiBtn" class="btn btn-danger">刪除</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+{% endblock %}

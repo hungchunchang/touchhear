@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}A4 Interactive Board{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+</head>
+
+<body>
+    <!-- Apple 風格導航欄 -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <a href="/">🎯 A4 Board</a>
+            </div>
+            <ul class="navbar-menu">
+                <li><a href="/" {% if request.endpoint=='index' %}class="active" {% endif %}>檢測</a></li>
+                <li><a href="/editor" {% if request.endpoint=='editor' %}class="active" {% endif %}>編輯</a></li>
+                <li><a href="/projects" {% if request.endpoint=='projects' %}class="active" {% endif %}>專案</a></li>
+                <li><a href="#" class="nav-help">說明</a></li>
+            </ul>
+            <div class="navbar-actions">
+                <button class="nav-btn" id="newProjectBtn">新專案</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要內容區 -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- 全局腳本 -->
+    <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

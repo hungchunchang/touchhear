@@ -1,0 +1,67 @@
+{
+  "name": "111",
+  "created_at": "2025-09-02T19:08:51.152848",
+  "background_image": "bg_20250902_191837.png",
+  "rois": [
+    {
+      "id": "f76b3bf3-578d-4200-b486-390ce2fbd57d",
+      "name": "ROI 1",
+      "type": "rectangle",
+      "x": 182,
+      "y": 226,
+      "width": 111,
+      "height": 111,
+      "audio_file": null
+    },
+    {
+      "id": "0c6492f9-84be-4528-9a34-918f0a290226",
+      "name": "ROI 2",
+      "type": "rectangle",
+      "x": 335,
+      "y": 54,
+      "width": 148,
+      "height": 184,
+      "audio_file": null
+    },
+    {
+      "id": "d38bbb2f-6e63-4a33-9432-0402cd454462",
+      "name": "ROI 3",
+      "type": "rectangle",
+      "x": 549,
+      "y": 435,
+      "width": 179,
+      "height": 145,
+      "audio_file": null
+    },
+    {
+      "id": "2e48c3c2-7197-4247-af2d-65699c656bcc",
+      "name": "ROI 1",
+      "type": "rectangle",
+      "x": 317.5,
+      "y": 41,
+      "width": 229,
+      "height": 243,
+      "audio_file": null
+    },
+    {
+      "id": "626a36ad-f3f1-4cdb-a9f8-3153df3ddce4",
+      "name": "ROI 2",
+      "type": "rectangle",
+      "x": 87.5,
+      "y": 190,
+      "width": 220,
+      "height": 267,
+      "audio_file": null
+    },
+    {
+      "id": "7e22895f-d334-4d58-b7e2-a4db0f3940a4",
+      "name": "ROI 3",
+      "type": "rectangle",
+      "x": 536.5,
+      "y": 380,
+      "width": 215,
+      "height": 195,
+      "audio_file": null
+    }
+  ]
+}
