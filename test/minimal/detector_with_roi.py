@@ -44,7 +44,6 @@ class ROIDetector(QWidget):
         widget = QWidget()
         layout = QVBoxLayout()
         
-        # Title
         title = QLabel("Detection Status")
         title.setStyleSheet("font-size: 18px; font-weight: bold; margin: 10px;")
         layout.addWidget(title)
@@ -126,7 +125,7 @@ class ROIDetector(QWidget):
         
     def setup_audio(self):
         pygame.mixer.init()
-        self.audio_cooldowns = {}  # Prevent audio spam
+        self.audio_cooldowns = {}
         self.volume = 0.7
         
     def load_project(self):
@@ -226,29 +225,111 @@ class ROIDetector(QWidget):
             return True
         return False
     
-    def check_roi_touches(self, touch_points):
-        """Check which ROIs are being touched"""
+    def check_roi_touches(self, touch_points, marker_positions):
+        """Check which ROIs are being touched - supports A4 coordinate mapping"""
         touched_rois = []
         current_time = time.time()
         
+        if not marker_positions or len(marker_positions) < 3:
+            return touched_rois
+        
+        # A4 template content area parameters (consistent with aruco_generator.py)
+        a4_width, a4_height = 2480, 3508
+        marker_size = 150
+        margin = 30
+        
+        content_left = margin + marker_size + 50
+        content_right = a4_width - marker_size - margin - 50
+        content_top = margin + marker_size + 50
+        content_bottom = a4_height - marker_size - margin - 50
+        content_width = content_right - content_left
+        content_height = content_bottom - content_top
+        
         for touch_point in touch_points:
-            x, y = touch_point
+            # Convert touch point from camera coordinates to A4 coordinates
+            a4_coord = self.pixel_to_a4_coordinate(touch_point, marker_positions)
+            if not a4_coord:
+                continue
+                
+            a4_x, a4_y = a4_coord
             
+            # Check each ROI
             for roi in self.rois:
+                # Map ROI from editor coordinates to A4 template coordinates
+                roi_x = content_left + (roi['x'] * content_width / 800)  # Editor width 800px
+                roi_y = content_top + (roi['y'] * content_height / 600)   # Editor height 600px
+                roi_w = roi['width'] * content_width / 800
+                roi_h = roi['height'] * content_height / 600
+                
+                # Convert A4 coordinates to mm (A4 template coordinates to actual size)
+                # A4 actual size: 210mm x 297mm
+                real_roi_x = roi_x * 210 / a4_width
+                real_roi_y = roi_y * 297 / a4_height
+                real_roi_w = roi_w * 210 / a4_width
+                real_roi_h = roi_h * 297 / a4_height
+                
                 # Check if touch point is inside ROI
-                if (roi['x'] <= x <= roi['x'] + roi['width'] and
-                    roi['y'] <= y <= roi['y'] + roi['height']):
+                if (real_roi_x <= a4_x <= real_roi_x + real_roi_w and
+                    real_roi_y <= a4_y <= real_roi_y + real_roi_h):
                     
                     touched_rois.append(roi)
                     
-                    # Play audio if available and not in cooldown
+                    # Play audio (prevent duplicate)
                     if roi.get('audio_file') and os.path.exists(roi['audio_file']):
                         roi_id = roi['id']
                         if roi_id not in self.audio_cooldowns or current_time - self.audio_cooldowns[roi_id] > 1.0:
                             self.play_audio(roi['audio_file'])
                             self.audio_cooldowns[roi_id] = current_time
+                            print(f"🔊 Playing audio for ROI: {roi['name']}")
                             
         return touched_rois
+    
+    def pixel_to_a4_coordinate(self, pixel_pos, marker_positions):
+        """Convert pixel coordinates to A4 coordinates - returns mm units"""
+        if not marker_positions or len(marker_positions) < 3:
+            return None
+        
+        # A4 size (mm)
+        a4_width_mm = 210
+        a4_height_mm = 297
+        margin_mm = 3  # ~3mm margin
+        
+        marker_refs = {
+            0: [margin_mm, margin_mm],                                    # top left
+            1: [a4_width_mm - margin_mm, margin_mm],                     # top right
+            2: [a4_width_mm - margin_mm, a4_height_mm - margin_mm],      # bottom right
+            3: [margin_mm, a4_height_mm - margin_mm]                     # bottom left
+        }
+        
+        src_points = []
+        dst_points = []
+        for marker_id, pos in marker_positions.items():
+            if marker_id in marker_refs:
+                src_points.append(pos)
+                dst_points.append(marker_refs[marker_id])
+        
+        if len(src_points) >= 3:
+            src_points = np.float32(src_points)
+            dst_points = np.float32(dst_points)
+            
+            try:
+                if len(src_points) == 3:
+                    matrix = cv2.getAffineTransform(src_points, dst_points)
+                    pixel_array = np.array([[pixel_pos[0]], [pixel_pos[1]], [1]], dtype=np.float32)
+                    a4_coord = np.dot(matrix, pixel_array).flatten()
+                    x, y = a4_coord[0], a4_coord[1]
+                else:
+                    matrix = cv2.getPerspectiveTransform(src_points, dst_points)
+                    pixel_array = np.float32([[pixel_pos]])
+                    a4_coord = cv2.perspectiveTransform(pixel_array, matrix)
+                    x, y = a4_coord[0][0][0], a4_coord[0][0][1]
+                
+                if 0 <= x <= a4_width_mm and 0 <= y <= a4_height_mm:
+                    return (round(x, 1), round(y, 1))
+            except Exception as e:
+                print(f"Coordinate conversion error: {e}")
+        
+        return None
     
     def play_audio(self, audio_file):
         try:
@@ -353,7 +434,7 @@ class ROIDetector(QWidget):
                                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
             
             # Check ROI touches
-            touched_rois = self.check_roi_touches(touch_points)
+            touched_rois = self.check_roi_touches(touch_points, marker_positions)
             self.update_touched_list(touched_rois)
             
             # Draw status
@@ -396,12 +477,10 @@ class ROIDetector(QWidget):
             self.touched_list.addItem(f"{roi['name']} {audio_status}")
     
     def display_image(self, image):
-        # Convert to Qt format
         height, width, channel = image.shape
         bytes_per_line = 3 * width
         q_image = QImage(image.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
         
-        # Scale to fit label
         pixmap = QPixmap.fromImage(q_image)
         scaled_pixmap = pixmap.scaled(self.video_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.video_label.setPixmap(scaled_pixmap)

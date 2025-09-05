@@ -1,0 +1,25 @@
+{
+  "background": "C:/Users/user/Downloads/topo.jpg",
+  "rois": [
+    {
+      "id": 0,
+      "name": "ROI 1",
+      "x": 353,
+      "y": 106,
+      "width": 218,
+      "height": 195,
+      "audio_file": "C:/Users/user/Downloads/mixkit-air-woosh-1489.wav"
+    },
+    {
+      "id": 1,
+      "name": "ROI 2",
+      "x": 18,
+      "y": 400,
+      "width": 308,
+      "height": 182,
+      "audio_file": "C:/Users/user/Downloads/mixkit-retro-game-notification-212.wav"
+    }
+  ],
+  "created_at": "2025-09-05T17:09:10.847644",
+  "version": "1.0"
+}

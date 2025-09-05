@@ -55,16 +55,16 @@ class TouchHearLauncher(QWidget):
         layout.addWidget(desc)
         
         # Buttons
-        editor_btn = QPushButton("📝 ROI Editor\nCreate and configure touch regions")
+        editor_btn = QPushButton("📝 ROI Editor\n• Create touch regions\n• Assign audio files\n• Generate A4 templates")
         editor_btn.clicked.connect(self.launch_editor)
         layout.addWidget(editor_btn)
         
-        detector_btn = QPushButton("🔍 Touch Detector\nRun detection with audio feedback")
+        detector_btn = QPushButton("🔍 Touch Detector\n• Real-time touch detection\n• Audio feedback\n• A4 template support")
         detector_btn.clicked.connect(self.launch_detector)
         layout.addWidget(detector_btn)
         
         # Info
-        info = QLabel("Make sure your Orbbec camera is connected!")
+        info = QLabel("📋 Workflow: Editor → Print A4 → Detector\n🎯 Make sure your Orbbec camera is connected!")
         info.setAlignment(Qt.AlignCenter)
         info.setStyleSheet("font-size: 12px; color: #666; font-weight: normal;")
         layout.addWidget(info)
