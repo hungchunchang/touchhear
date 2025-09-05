@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depth Calibration - A4 Interactive Board</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #86868b;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .video-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .video-container {
+            text-align: center;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #video-stream {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .status-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .status-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .status-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-weight: 500;
+        }
+
+        .status-value {
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: #30d158;
+            color: white;
+        }
+
+        .badge-warning {
+            background: #ff9500;
+            color: white;
+        }
+
+        .badge-danger {
+            background: #ff3b30;
+            color: white;
+        }
+
+        .badge-secondary {
+            background: #86868b;
+            color: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #007aff;
+            transition: width 0.3s ease;
+        }
+
+        .btn {
+            background: #007aff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .btn-danger {
+            background: #ff3b30;
+        }
+
+        .btn-danger:hover {
+            background: #d70015;
+        }
+
+        .finger-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .finger-item {
+            background: #f5f5f7;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .finger-item.touch {
+            background: #ffe6e6;
+            border-left: 4px solid #ff3b30;
+        }
+
+        .finger-item.hover {
+            background: #e6f2ff;
+            border-left: 4px solid #007aff;
+        }
+
+        .instructions {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .instructions h3 {
+            margin-bottom: 15px;
+            color: #1d1d1f;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Depth Calibration System</h1>
+            <p>A4 Interactive Board with Depth Detection</p>
+        </div>
+
+        <div class="main-content">
+            <div class="video-section">
+                <h3>Live Detection</h3>
+                <div class="video-container">
+                    <img id="video-stream" src="/video_feed" alt="Video Stream">
+                </div>
+            </div>
+
+            <div class="status-section">
+                <div class="status-card">
+                    <h3>Calibration Status</h3>
+                    <div class="status-item">
+                        <span class="status-label">Status:</span>
+                        <span id="calibration-status" class="badge badge-secondary">Initializing</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Progress:</span>
+                        <span id="calibration-progress">0/10</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Plane Depth:</span>
+                        <span id="plane-depth" class="status-value">-- mm</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Markers:</span>
+                        <span id="marker-count" class="status-value">0/4</span>
+                    </div>
+                    <button id="reset-btn" class="btn btn-danger" style="margin-top: 15px;">
+                        Reset Calibration
+                    </button>
+                </div>
+
+                <div class="status-card">
+                    <h3>Finger Detection</h3>
+                    <div id="finger-list" class="finger-list">
+                        <div class="finger-item">
+                            No fingers detected
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>使用說明</h3>
+            <ol>
+                <li>確保 OrbbecSDK 相機已連接並正常工作</li>
+                <li>將包含 ArUco 標記的 A4 紙平放在相機前</li>
+                <li>等待系統自動校正平面深度（需要檢測到 3 個以上標記）</li>
+                <li>校正完成後，用手指接觸 A4 紙表面進行互動</li>
+                <li>系統會顯示手指與平面的距離，判斷是否接觸</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        let updateInterval;
+
+        function updateStatus() {
+            fetch('/api/detection-status')
+                .then(response => response.json())
+                .then(data => {
+                    // 更新校正狀態
+                    const calibrationStatus = document.getElementById('calibration-status');
+                    const progressFill = document.getElementById('progress-fill');
+                    const calibrationProgress = document.getElementById('calibration-progress');
+                    const planeDepth = document.getElementById('plane-depth');
+                    const markerCount = document.getElementById('marker-count');
+
+                    if (data.calibrated) {
+                        calibrationStatus.textContent = 'Calibrated';
+                        calibrationStatus.className = 'badge badge-success';
+                        progressFill.style.width = '100%';
+                    } else {
+                        calibrationStatus.textContent = 'Calibrating...';
+                        calibrationStatus.className = 'badge badge-warning';
+                        progressFill.style.width = (data.calibration_progress * 10) + '%';
+                    }
+
+                    calibrationProgress.textContent = `${data.calibration_progress}/10`;
+                    planeDepth.textContent = data.plane_depth ? `${data.plane_depth.toFixed(1)} mm` : '-- mm';
+                    markerCount.textContent = `${data.marker_count}/4`;
+
+                    // 更新手指檢測
+                    updateFingerList(data.finger_positions);
+                })
+                .catch(error => {
+                    console.error('Error fetching status:', error);
+                });
+        }
+
+        function updateFingerList(fingerPositions) {
+            const fingerList = document.getElementById('finger-list');
+            
+            if (fingerPositions.length === 0) {
+                fingerList.innerHTML = '<div class="finger-item">No fingers detected</div>';
+                return;
+            }
+
+            fingerList.innerHTML = '';
+            fingerPositions.forEach((finger, index) => {
+                const div = document.createElement('div');
+                div.className = `finger-item ${finger.status.toLowerCase()}`;
+                div.innerHTML = `
+                    <strong>Finger ${index + 1}</strong><br>
+                    Status: ${finger.status}<br>
+                    Distance: ${finger.distance_to_plane.toFixed(1)} mm<br>
+                    Depth: ${finger.depth.toFixed(1)} mm
+                `;
+                fingerList.appendChild(div);
+            });
+        }
+
+        function resetCalibration() {
+            fetch('/api/reset-calibration', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Calibration reset successfully');
+                }
+            })
+            .catch(error => {
+                console.error('Error resetting calibration:', error);
+                alert('Failed to reset calibration');
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateInterval = setInterval(updateStatus, 500);
+            
+            document.getElementById('reset-btn').addEventListener('click', resetCalibration);
+        });
+
+        // 頁面離開時清理
+        window.addEventListener('beforeunload', function() {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+        });
+    </script>
+</body>
+</html>
