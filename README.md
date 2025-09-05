@@ -18,3 +18,5 @@
 ### 互動介面
 
 - 音效播放
+
+<img width="3840" height="1950" alt="Untitled diagram _ Mermaid Chart-2025-09-05-101435" src="https://github.com/user-attachments/assets/102cfc35-48a4-4b5a-acb7-e02cbf584628" />
