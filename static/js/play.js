@@ -1,4 +1,4 @@
-// 播放模式 JavaScript
+// 播放模式 JavaScript - 包含深度資訊顯示
 let detectionInterval;
 let audioContext;
 
@@ -32,19 +32,75 @@ function updatePlayStatus(data) {
     const touchStatus = document.getElementById('touch-status');
     
     if (boardStatus) {
+        const markerCount = data.detected_markers ? data.detected_markers.length : 0;
         boardStatus.className = `badge ${data.board ? 'bg-success' : 'bg-danger'}`;
-        boardStatus.textContent = `棋盤: ${data.board ? '✓' : '✗'} (${data.detected_markers.length}/4)`;
+        boardStatus.textContent = `棋盤: ${data.board ? '✓' : '✗'} (${markerCount}/4)`;
     }
     
     if (handStatus) {
-        handStatus.className = `badge ${data.hands.length > 0 ? 'bg-success' : 'bg-secondary'}`;
-        handStatus.textContent = `手部: ${data.hands.length > 0 ? '✓' : '✗'}`;
+        const handCount = data.hands ? data.hands.length : 0;
+        const touchingCount = data.hands ? data.hands.filter(h => h.contact_state === 'touch').length : 0;
+        handStatus.className = `badge ${handCount > 0 ? 'bg-success' : 'bg-secondary'}`;
+        handStatus.textContent = `手部: ${handCount > 0 ? '✓' : '✗'} (${touchingCount}/${handCount} 接觸)`;
     }
     
     if (touchStatus) {
-        touchStatus.className = `badge ${data.roi_touches.length > 0 ? 'bg-warning' : 'bg-secondary'}`;
-        touchStatus.textContent = `ROI 觸碰: ${data.roi_touches.length}`;
+        const touchCount = data.hands ? data.hands.filter(h => h.contact_state === 'touch').length : 0;
+        const hoverCount = data.hands ? data.hands.filter(h => h.contact_state === 'hover').length : 0;
+        const farCount = data.hands ? data.hands.filter(h => h.contact_state === 'far').length : 0;
+        
+        touchStatus.className = `badge ${touchCount > 0 ? 'bg-danger' : hoverCount > 0 ? 'bg-warning' : 'bg-secondary'}`;
+        touchStatus.textContent = `🔴${touchCount} 🟠${hoverCount} 🔵${farCount}`;
     }
+    
+    // 更新手部詳細資訊
+    updateHandDetails(data.hands || []);
+}
+
+function updateHandDetails(hands) {
+    const handDetails = document.getElementById('hand-details');
+    if (!handDetails) return;
+    
+    if (hands.length === 0) {
+        handDetails.innerHTML = '<small class="text-muted">無手部檢測</small>';
+        return;
+    }
+    
+    let html = '';
+    hands.forEach((hand, index) => {
+        let statusIcon = '🔵';
+        let statusText = 'FAR';
+        let statusClass = 'text-primary';
+        
+        if (hand.contact_state === 'touch') {
+            statusIcon = '🔴';
+            statusText = 'TOUCH';
+            statusClass = 'text-danger';
+        } else if (hand.contact_state === 'hover') {
+            statusIcon = '🟠';
+            statusText = 'HOVER';
+            statusClass = 'text-warning';
+        }
+        
+        html += `<div class="hand-detail-item mb-2 p-2 border rounded">`;
+        html += `<div class="${statusClass}"><strong>${statusIcon} ${statusText}</strong></div>`;
+        
+        if (hand.finger_depth) {
+            html += `<small>深度: ${Math.round(hand.finger_depth)}mm</small><br>`;
+        }
+        
+        if (hand.depth_diff !== undefined) {
+            html += `<small>距離差: ${Math.round(Math.abs(hand.depth_diff))}mm</small><br>`;
+        }
+        
+        if (hand.a4_coord) {
+            html += `<small>A4: (${hand.a4_coord[0]}, ${hand.a4_coord[1]}) mm</small>`;
+        }
+        
+        html += `</div>`;
+    });
+    
+    handDetails.innerHTML = html;
 }
 
 function handleROITouches(touchedROIs) {
@@ -100,3 +156,6 @@ function stopAllAudio() {
 }
 
 // 頁面載入時初始化
+document.addEventListener('DOMContentLoaded', function() {
+    initializePlayMode();
+});

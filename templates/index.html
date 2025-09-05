@@ -6,36 +6,145 @@
     <h1>TouchHear</h1>
     <img src="/video_feed" width="640" height="480" alt="視頻流">
 
+    <!-- 即時狀態顯示 -->
+    <div id="detection-status">
+        <div class="mb-2">
+            <span id="board-status" class="badge bg-secondary">棋盤: 檢測中...</span>
+        </div>
+        <div class="mb-2">
+            <span id="hand-status" class="badge bg-secondary">手部: 檢測中...</span>
+        </div>
+        <div class="mb-2">
+            <span id="depth-status" class="badge bg-secondary">深度: 校準中...</span>
+        </div>
+        <div class="mb-2">
+            <span id="touch-status" class="badge bg-secondary">接觸: 無</span>
+        </div>
+    </div>
+
+    <div id="detailed-info" style="margin-top: 15px;">
+        <div id="calibration-progress"></div>
+        <div id="finger-positions"></div>
+    </div>
+
     <div class="instructions">
         <h3>使用說明：</h3>
         <ol>
             <li>列印 A4 模板（包含四個角落的 ArUco 標記）</li>
             <li>將 A4 紙平放在攝影機前</li>
+            <li>等待深度校準完成（約2-3秒）</li>
             <li>用食指指向 A4 紙上的位置</li>
-            <li>系統會顯示手指在 A4 紙上的精確座標（單位：mm）</li>
-            <li>只有手指接觸紙面時才會記錄座標（陰影檢測）</li>
+            <li>觀察 Touch/Hover/Far 狀態變化</li>
         </ol>
     </div>
 
     <div class="marker-info">
         <strong>ArUco 標記說明：</strong><br>
         • ID0 (左上角) • ID1 (右上角) • ID2 (右下角) • ID3 (左下角)<br>
-        至少需要檢測到 3 個標記才能進行座標計算
+        至少需要檢測到 2 個標記才能進行深度校準
     </div>
 
     <div class="status">
-        <h3>檢測狀態</h3>
-        <p>即時影像中會顯示：</p>
+        <h3>深度檢測原理</h3>
         <ul>
-            <li>ArUco 標記檢測狀態（✓/✗）</li>
-            <li>手部檢測狀態</li>
-            <li>接觸檢測（紅圈=接觸，藍圈=懸空）</li>
-            <li>手指在 A4 紙上的精確位置 (mm)</li>
+            <li><strong>Touch:</strong> 手指距離紙張 < 20mm</li>
+            <li><strong>Hover:</strong> 手指距離紙張 20-50mm</li>
+            <li><strong>Far:</strong> 手指距離紙張 > 50mm</li>
+            <li>使用 15 像素半徑區域取中位數深度值</li>
         </ul>
     </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+
+<script>
+// 更新狀態顯示函數
+function updatePlayStatus(data) {
+    const boardStatus = document.getElementById('board-status');
+    const handStatus = document.getElementById('hand-status');
+    const touchStatus = document.getElementById('touch-status');
+    const depthStatus = document.getElementById('depth-status');
+    
+    if (boardStatus) {
+        boardStatus.className = `badge ${data.board ? 'bg-success' : 'bg-danger'}`;
+        boardStatus.textContent = `棋盤: ${data.board ? '✓' : '✗'} (${data.detected_markers.length}/4)`;
+    }
+    
+    if (handStatus) {
+        handStatus.className = `badge ${data.hands.length > 0 ? 'bg-success' : 'bg-secondary'}`;
+        handStatus.textContent = `手部: ${data.hands.length > 0 ? '✓' : '✗'}`;
+    }
+    
+    // 統計接觸狀態
+    const touchCount = data.hands.filter(h => h.contact_state === 'touch').length;
+    const hoverCount = data.hands.filter(h => h.contact_state === 'hover').length;
+    const farCount = data.hands.filter(h => h.contact_state === 'far').length;
+    
+    if (touchStatus) {
+        touchStatus.className = `badge ${touchCount > 0 ? 'bg-danger' : hoverCount > 0 ? 'bg-warning' : 'bg-secondary'}`;
+        touchStatus.textContent = `Touch:${touchCount} Hover:${hoverCount} Far:${farCount}`;
+    }
+    
+    // 顯示深度資訊
+    if (depthStatus) {
+        const paperDepth = data.depth_reference ? data.depth_reference.toFixed(0) : 'N/A';
+        const calibrationProgress = (data.calibration_progress * 100).toFixed(0);
+        
+        let depthText = `校準: ${calibrationProgress}% | 紙張: ${paperDepth}mm`;
+        
+        if (data.hands.length > 0 && data.hands[0].finger_depth) {
+            const fingerDepth = data.hands[0].finger_depth.toFixed(0);
+            const depthDiff = data.hands[0].depth_diff.toFixed(1);
+            depthText += ` | 手指: ${fingerDepth}mm (差異: ${depthDiff}mm)`;
+        }
+        
+        depthStatus.textContent = depthText;
+        depthStatus.className = `badge ${data.calibration_progress > 0.5 ? 'bg-info' : 'bg-warning'}`;
+    }
+}
+
+// 更新詳細資訊顯示
+function updateDetailInfo(data) {
+    const detailInfo = document.getElementById('detail-info');
+    if (!detailInfo) return;
+    
+    let html = '';
+    
+    if (data.hands && data.hands.length > 0) {
+        data.hands.forEach((hand, index) => {
+            if (hand.a4_coord) {
+                html += `<div class="mb-1">
+                    <strong>手指 ${index + 1}:</strong> 
+                    A4座標 (${hand.a4_coord[0]}, ${hand.a4_coord[1]})mm<br>
+                    <small>深度: ${hand.finger_depth?.toFixed(0) || 0}mm | 
+                    差異: ${hand.depth_diff?.toFixed(1) || 0}mm | 
+                    狀態: ${hand.contact_state}</small>
+                </div>`;
+            }
+        });
+    }
+    
+    if (html === '') {
+        html = '<small class="text-muted">無手部檢測</small>';
+    }
+    
+    detailInfo.innerHTML = html;
+}
+
+// 主要更新函數
+function updateDetectionStatus() {
+    fetch('/api/detection-status')
+        .then(response => response.json())
+        .then(data => {
+            updatePlayStatus(data);
+            updateDetailInfo(data);
+        })
+        .catch(error => {
+            console.error('獲取檢測狀態失敗:', error);
+        });
+}
+
+// 啟動監控
+setInterval(updateDetectionStatus, 500);
+</script>
 {% endblock %}

@@ -321,13 +321,25 @@
             <div class="card-body">
                 <div id="detection-status">
                     <div class="mb-2">
-                        <span id="board-status" class="badge bg-secondary">棋盤: 未檢測</span>
+                        <span id="board-status" class="badge bg-secondary">棋盤: 檢測中...</span>
                     </div>
                     <div class="mb-2">
-                        <span id="hand-status" class="badge bg-secondary">手部: 未檢測</span>
+                        <span id="hand-status" class="badge bg-secondary">手部: 檢測中...</span>
                     </div>
                     <div class="mb-2">
-                        <span id="touch-status" class="badge bg-secondary">ROI 觸碰: 0</span>
+                        <span id="depth-status" class="badge bg-secondary">深度: 校準中...</span>
+                    </div>
+                    <div class="mb-2">
+                        <span id="touch-status" class="badge bg-secondary">狀態: 無</span>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div id="hand-info">
+                    <h6>手部詳情：</h6>
+                    <div id="hand-details">
+                        <small class="text-muted">等待檢測...</small>
                     </div>
                 </div>
 

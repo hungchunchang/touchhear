@@ -1,20 +1,25 @@
-# app.py - 主應用
 from flask import Flask, render_template, jsonify, request, send_from_directory
 import os
 import json
 import uuid
 from datetime import datetime
-from detector import A4WebStreamDetector
+
+# 自動選擇檢測器
+try:
+    from depth_detector import A4DepthStreamDetector
+    detector = A4DepthStreamDetector()
+    print("✓ 使用深度檢測器")
+except:
+    from detector import A4WebStreamDetector
+    detector = A4WebStreamDetector()
+    print("✓ 使用標準檢測器")
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['PROJECTS_FOLDER'] = 'projects'
 
-# 確保資料夾存在
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['PROJECTS_FOLDER'], exist_ok=True)
-
-detector = A4WebStreamDetector()
 
 @app.route('/')
 def index():
@@ -40,7 +45,6 @@ def detection_status():
 @app.route('/api/projects', methods=['GET', 'POST'])
 def api_projects():
     if request.method == 'GET':
-        # 列出所有專案
         projects = []
         if os.path.exists(app.config['PROJECTS_FOLDER']):
             for folder in os.listdir(app.config['PROJECTS_FOLDER']):
@@ -51,9 +55,7 @@ def api_projects():
                         project['id'] = folder
                         projects.append(project)
         return jsonify(projects)
-    
     else:
-        # 創建新專案
         data = request.get_json()
         project_id = str(uuid.uuid4())[:8]
         project_path = os.path.join(app.config['PROJECTS_FOLDER'], project_id)
@@ -71,6 +73,7 @@ def api_projects():
         
         project['id'] = project_id
         return jsonify(project)
+
 
 @app.route('/api/projects/<project_id>/upload', methods=['POST'])
 def upload_background(project_id):
@@ -124,6 +127,5 @@ def project_file(project_id, filename):
     return send_from_directory(os.path.join(app.config['PROJECTS_FOLDER'], project_id), filename)
 
 if __name__ == '__main__':
-    print("啟動 A4 棋盤手勢檢測服務...")
-    print("在瀏覽器開啟: http://localhost:5000")
+    print("TouchHear 系統啟動: http://localhost:5000")
     app.run(host='0.0.0.0', port=5000, debug=False)
